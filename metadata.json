@@ -1,0 +1,7 @@
+{
+  "name": "ระบบสถิติบำเหน็จบำนาญ",
+  "description": "ระบบจัดเก็บข้อมูลสถิติบำเหน็จบำนาญ สรุปผลรายเดือน รายปี และวิเคราะห์ข้อมูลสถิติ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

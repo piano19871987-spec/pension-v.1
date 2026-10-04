@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "pension_record": {
+      "title": "Pension Record",
+      "description": "Records of approved pension cases by province and month",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the record"
+        },
+        "province": {
+          "type": "string",
+          "description": "Target province in the western/central region",
+          "enum": [
+            "ราชบุรี",
+            "กาญจนบุรี",
+            "นครปฐม",
+            "สมุทรสาคร",
+            "สมุทรสงคราม",
+            "เพชรบุรี",
+            "ประจวบคีรีขันธ์",
+            "สุพรรณบุรี"
+          ]
+        },
+        "year": {
+          "type": "integer",
+          "description": "Buddhist Era year of the record (e.g. 2567, 2568, 2569)"
+        },
+        "month": {
+          "type": "integer",
+          "description": "Month number 1 to 12"
+        },
+        "monthName": {
+          "type": "string",
+          "description": "Thai month name"
+        },
+        "approvedCount": {
+          "type": "integer",
+          "description": "Total number of pension approvals"
+        },
+        "recordedBy": {
+          "type": "string",
+          "description": "Name of the officer who created the record",
+          "maxLength": 100
+        },
+        "recordedByEmail": {
+          "type": "string",
+          "description": "Email of the officer who created the record",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "User identifier or guest tag",
+          "maxLength": 128
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or remarks",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the record was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the record was last modified"
+        }
+      },
+      "required": [
+        "province",
+        "year",
+        "month",
+        "approvedCount",
+        "recordedBy"
+      ]
+    }
+  },
+  "firestore": {
+    "/pension_records/{recordId}": {
+      "schema": "pension_record",
+      "description": "Collection storing pension approval statistics for the 8 designated provinces"
+    }
+  }
+}

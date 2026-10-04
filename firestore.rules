@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidProvince(province) {
+      return province is string && (
+        province == 'ราชบุรี' ||
+        province == 'กาญจนบุรี' ||
+        province == 'นครปฐม' ||
+        province == 'สมุทรสาคร' ||
+        province == 'สมุทรสงคราม' ||
+        province == 'เพชรบุรี' ||
+        province == 'ประจวบคีรีขันธ์' ||
+        province == 'สุพรรณบุรี'
+      );
+    }
+
+    function isValidPensionRecord(data) {
+      return data.keys().hasAll(['province', 'year', 'month', 'approvedCount', 'recordedBy']) &&
+        data.keys().hasOnly(['id', 'province', 'year', 'month', 'monthName', 'pensionType', 'approvedCount', 'approvedAmount', 'recordedBy', 'recordedByEmail', 'userId', 'notes', 'createdAt', 'updatedAt']) &&
+        isValidProvince(data.province) &&
+        data.year is int && data.year >= 2400 && data.year <= 2650 &&
+        data.month is int && data.month >= 1 && data.month <= 12 &&
+        data.approvedCount is int && data.approvedCount >= 0 && data.approvedCount <= 1000000 &&
+        data.recordedBy is string && data.recordedBy.size() > 0 && data.recordedBy.size() <= 100 &&
+        (!('userId' in data) || (data.userId is string && data.userId.size() <= 128)) &&
+        (!('pensionType' in data) || (data.pensionType is string && data.pensionType.size() <= 100)) &&
+        (!('monthName' in data) || (data.monthName is string && data.monthName.size() <= 50)) &&
+        (!('approvedAmount' in data) || (data.approvedAmount is number && data.approvedAmount >= 0)) &&
+        (!('recordedByEmail' in data) || (data.recordedByEmail is string && data.recordedByEmail.size() <= 128)) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+        (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    match /pension_records/{recordId} {
+      // Allow read for everyone without requiring login
+      allow read: if true;
+
+      // Allow create without requiring Google login
+      allow create: if isValidId(recordId) && isValidPensionRecord(incoming());
+
+      // Allow update with valid record
+      allow update: if isValidId(recordId) && isValidPensionRecord(incoming());
+
+      // Allow delete
+      allow delete: if isValidId(recordId);
+    }
+
+    // Connection test document
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}
